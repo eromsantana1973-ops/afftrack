@@ -1,0 +1,33 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/products"
+  to = "/.netlify/functions/products"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/affiliates"
+  to = "/.netlify/functions/affiliates"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/sales"
+  to = "/.netlify/functions/sales"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/r/:ref/:product"
+  to = "/.netlify/functions/redirect?ref=:ref&product=:product"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/webhook/mp"
+  to = "/.netlify/functions/webhook"
+  status = 200
+  force = true
