@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AffTrack — SaaS de Afiliados</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#0a0a0f;--surface:#111118;--surface2:#1a1a26;--border:#2a2a3a;--accent:#7c6aff;--accent2:#ff6ab0;--green:#00e5a0;--yellow:#ffd166;--text:#e8e8f0;--muted:#6b6b80;--radius:14px;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+    .logo{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .logo span{font-weight:400;opacity:.7;}
+    #userBadge{font-size:.82rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:6px 14px;border-radius:99px;display:none;}
+    nav{display:flex;gap:4px;padding:14px 32px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
+    nav::-webkit-scrollbar{display:none;}
+    .tab-btn{font-family:'DM Sans',sans-serif;font-size:.875rem;font-weight:500;padding:8px 18px;border:1px solid transparent;border-radius:99px;cursor:pointer;background:transparent;color:var(--muted);white-space:nowrap;transition:all .2s;}
+    .tab-btn:hover{color:var(--text);background:var(--surface2);}
+    .tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+    .container{max-width:960px;margin:0 auto;padding:32px 24px;}
+    .hidden{display:none!important;}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
+    .card-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:20px;color:var(--text);display:flex;align-items:center;gap:8px;}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+    .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;position:relative;overflow:hidden;}
+    .stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+    .stat.s1::before{background:var(--accent);}
+    .stat.s2::before{background:var(--green);}
+    .stat.s3::before{background:var(--accent2);}
+    .stat-val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1;}
+    .stat.s1 .stat-val{color:var(--accent);}
+    .stat.s2 .stat-val{color:var(--green);}
+    .stat.s3 .stat-val{color:var(--accent2);}
+    .stat-label{font-size:.8rem;color:var(--muted);margin-top:6px;}
+    label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px;margin-top:14px;font-weight:500;}
+    label:first-of-type{margin-top:0;}
+    input,select{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;transition:border-color .2s;outline:none;}
+    input:focus,select:focus{border-color:var(--accent);}
+    input::placeholder{color:var(--muted);}
+    select option{background:var(--surface2);}
+    .btn{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:11px 22px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:opacity .2s,transform .1s;}
+    .btn:hover{opacity:.88;}
+    .btn:active{transform:scale(.98);}
+    .btn.secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+    #toast{position:fixed;bottom:28px;right:28px;padding:13px 20px;border-radius:12px;font-size:.875rem;font-weight:500;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+    #toast.show{transform:translateY(0);opacity:1;}
+    #toast.ok{background:#0d3326;color:var(--green);border:1px solid #1a5c45;}
+    #toast.err{background:#380d1a;color:#ff6b8a;border:1px solid #5c1a30;}
+    .tbl-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:.875rem;}
+    th{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+    td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:rgba(124,106,255,.04);}
+    .empty{text-align:center;color:var(--muted);padding:32px!important;}
+    .badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.75rem;font-weight:500;}
+    .badge.approved{background:rgba(0,229,160,.12);color:var(--green);}
+    .badge.pending{background:rgba(255,209,102,.12);color:var(--yellow);}
+    .link-result{margin-top:14px;background:rgba(124,106,255,.08);border:1px dashed var(--accent);border-radius:10px;padding:14px 16px;font-size:.82rem;color:var(--accent);word-break:break-all;line-height:1.7;}
+    .link-result strong{display:block;margin-bottom:4px;color:var(--text);font-size:.78rem;}
+    .warn{background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.25);border-radius:10px;padding:14px 16px;font-size:.84rem;color:var(--yellow);line-height:1.7;margin-top:14px;}
+    .warn strong{display:block;margin-bottom:4px;}
+    .info-box{background:rgba(124,106,255,.07);border:1px solid rgba(124,106,255,.25);border-radius:10px;padding:16px 18px;font-size:.84rem;color:var(--accent);line-height:1.7;margin-bottom:20px;}
+    .info-box strong{color:var(--text);}
+    code{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:.8rem;color:var(--accent);font-family:'Courier New',monospace;}
+    @media(max-width:600px){.stats{grid-template-columns:1fr;}header,nav{padding:14px 16px;}.container{padding:20px 14px;}}
+  </style>
+</head>
+<body>
+<div id="toast"></div>
+<header>
+  <div class="logo">Aff<span>Track</span></div>
+  <div id="userBadge">👤 <span id="userBadgeName"></span></div>
+</header>
+<nav>
+  <button class="tab-btn active" data-tab="dashboard">📊 Dashboard</button>
+  <button class="tab-btn" data-tab="products">📦 Produtos</button>
+  <button class="tab-btn" data-tab="affiliates">👥 Afiliados</button>
+  <button class="tab-btn" data-tab="sales">💰 Vendas</button>
+  <button class="tab-btn" data-tab="config">⚙️ Configuração</button>
+</nav>
+<div class="container">
+  <div id="tab-dashboard">
+    <div class="stats">
+      <div class="stat s1"><div class="stat-val" id="stat-sales">—</div><div class="stat-label">Vendas Aprovadas</div></div>
+      <div class="stat s2"><div class="stat-val" id="stat-commission">—</div><div class="stat-label">Total em Comissões</div></div>
+      <div class="stat s3"><div class="stat-val" id="stat-affiliates">—</div><div class="stat-label">Afiliados Ativos</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🕒 Últimas Vendas</div>
+      <div class="tbl-wrap"><table><thead><tr><th>Produto</th><th>Afiliado</th><th>Valor</th><th>Comissão</th><th>Status</th><th>Data</th></tr></thead><tbody id="dash-sales-body"><tr><td class="empty" colspan="6">Configure sua conta na aba ⚙️</td></tr></tbody></table></div>
+    </div>
+  </div>
+  <div id="tab-products" class="hidden">
+    <div class="card">
+      <div class="card-title">➕ Cadastrar Produto</div>
+      <label>Nome do Produto</label><input type="text" id="prod-name" placeholder="Ex: Curso de Marketing Digital"/>
+      <label>Preço (R$)</label><input type="number" id="prod-price" placeholder="97.00" step="0.01" min="0"/>
+      <button class="btn" onclick="createProduct()">Cadastrar Produto</button>
+    </div>
+    <div class="card">
+      <div class="card-title">📦 Meus Produtos</div>
+      <div class="tbl-wrap"><table><thead><tr><th>Nome</th><th>Preço</th><th>ID Curto</th><th>Cadastrado em</th></tr></thead><tbody id="products-body"><tr><td class="empty" colspan="4">Nenhum produto ainda</td></tr></tbody></table></div>
+    </div>
+  </div>
+  <div id="tab-affiliates" class="hidden">
+    <div class="card">
+      <div class="card-title">➕ Adicionar Afiliado</div>
+      <label>Nome do Afiliado</label><input type="text" id="aff-name" placeholder="Ex: João Silva"/>
+      <label>E-mail do Afiliado</label><input type="email" id="aff-email" placeholder="joao@email.com"/>
+      <label>Produto Vinculado</label><select id="aff-product"><option value="">Selecione um produto...</option></select>
+      <button class="btn" onclick="createAffiliate()">Gerar Link do Afiliado</button>
+      <div class="link-result hidden" id="aff-link-result"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">👥 Meus Afiliados</div>
+      <div class="tbl-wrap"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Código</th><th>Vendas</th><th>Comissão Total</th></tr></thead><tbody id="affiliates-body"><tr><td class="empty" colspan="5">Nenhum afiliado ainda</td></tr></tbody></table></div>
+    </div>
+  </div>
+  <div id="tab-sales" class="hidden">
+    <div class="card">
+      <div class="card-title">💰 Histórico Completo de Vendas</div>
+      <div class="tbl-wrap"><table><thead><tr><th>Produto</th><th>Afiliado</th><th>Valor</th><th>Comissão (30%)</th><th>Status</th><th>Data</th></tr></thead><tbody id="sales-body"><tr><td class="empty" colspan="6">Nenhuma venda registrada</td></tr></tbody></table></div>
+    </div>
+  </div>
+  <div id="tab-config" class="hidden">
+    <div class="info-box">ℹ️ <strong>Configuração única:</strong> Preencha abaixo uma vez. Seus dados ficam salvos automaticamente.</div>
+    <div class="card">
+      <div class="card-title">⚙️ Configurar Conta do Produtor</div>
+      <label>Seu Nome</label><input type="text" id="cfg-name" placeholder="Seu nome completo"/>
+      <label>Seu E-mail</label><input type="email" id="cfg-email" placeholder="seu@email.com"/>
+      <label>Access Token do Mercado Pago</label><input type="password" id="cfg-token" placeholder="APP_USR-..."/>
+      <button class="btn" onclick="saveConfig()">💾 Salvar e Ativar Conta</button>
+      <div class="warn"><strong>📌 Como obter o Access Token?</strong>1. Acesse <strong>mercadopago.com.br/settings/account/credentials</strong><br/>2. Clique em <strong>"Produção"</strong><br/>3. Copie o <strong>Access Token</strong> (começa com APP_USR-...)<br/>4. Cole aqui e clique em Salvar ✅</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔗 Informações da Sessão</div>
+      <div style="display:flex;gap:32px;flex-wrap:wrap;margin-bottom:16px;">
+        <div><div style="font-size:.75rem;color:var(--muted);margin-bottom:4px;">ID do Produtor</div><code id="show-producer-id">—</code></div>
+        <div><div style="font-size:.75rem;color:var(--muted);margin-bottom:4px;">Status</div><code id="show-status">não configurado</code></div>
+      </div>
+      <button class="btn secondary" onclick="clearSession()">🗑️ Limpar Sessão Local</button>
+    </div>
+  </div>
+</div>
+<script>
+  let PROD_ID=localStorage.getItem('at_producer_id');
+  let PROD_NAME=localStorage.getItem('at_producer_name');
+  (function init(){if(PROD_ID){document.getElementById('show-producer-id').textContent=PROD_ID.split('-')[0]+'...';document.getElementById('show-status').textContent='✅ ativo';document.getElementById('userBadge').style.display='block';document.getElementById('userBadgeName').textContent=PROD_NAME;}})();
+  document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const tab=btn.dataset.tab;document.querySelectorAll('[id^="tab-"]').forEach(t=>t.classList.add('hidden'));document.getElementById('tab-'+tab).classList.remove('hidden');if(tab==='dashboard')loadDashboard();if(tab==='products')loadProducts();if(tab==='affiliates'){loadAffiliates();loadProductsDropdown();}if(tab==='sales')loadSales();});});
+  function toast(msg,type='ok'){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+type;setTimeout(()=>el.className='',3200);}
+  async function api(path,opts={}){const res=await fetch(path,{headers:{'Content-Type':'application/json'},...opts});if(!res.ok){const e=await res.json().catch(()=>({error:res.statusText}));throw new Error(e.error||res.statusText);}return res.json();}
+  async function saveConfig(){const name=document.getElementById('cfg-name').value.trim();const email=document.getElementById('cfg-email').value.trim();const token=document.getElementById('cfg-token').value.trim();if(!name||!email||!token)return toast('Preencha todos os campos!','err');try{const data=await api('/api/products?action=createProducer',{method:'POST',body:JSON.stringify({name,email,mp_access_token:token})});PROD_ID=data.id;PROD_NAME=data.name;localStorage.setItem('at_producer_id',data.id);localStorage.setItem('at_producer_name',data.name);document.getElementById('show-producer-id').textContent=data.id.split('-')[0]+'...';document.getElementById('show-status').textContent='✅ ativo';document.getElementById('userBadge').style.display='block';document.getElementById('userBadgeName').textContent=data.name;toast('✅ Conta configurada com sucesso!');}catch(e){toast('Erro: '+e.message,'err');}}
+  function clearSession(){if(!confirm('Tem certeza?'))return;localStorage.removeItem('at_producer_id');localStorage.removeItem('at_producer_name');PROD_ID=null;PROD_NAME=null;document.getElementById('userBadge').style.display='none';document.getElementById('show-producer-id').textContent='—';document.getElementById('show-status').textContent='não configurado';toast('Sessão limpa.');}
+  async function createProduct(){if(!PROD_ID)return toast('Configure sua conta primeiro!','err');const name=document.getElementById('prod-name').value.trim();const price=document.getElementById('prod-price').value;if(!name||!price)return toast('Preencha todos os campos!','err');try{await api('/api/products?action=create',{method:'POST',body:JSON.stringify({producer_id:PROD_ID,name,price:parseFloat(price)})});toast('✅ Produto cadastrado!');document.getElementById('prod-name').value='';document.getElementById('prod-price').value='';loadProducts();}catch(e){toast('Erro: '+e.message,'err');}}
+  async function loadProducts(){if(!PROD_ID)return;try{const rows=await api('/api/products?action=listByProducer&id='+PROD_ID);const tb=document.getElementById('products-body');tb.innerHTML=rows.length?rows.map(p=>`<tr><td>${esc(p.name)}</td><td>R$ ${fmt(p.price)}</td><td><code>${p.id.split('-')[0]}</code></td><td>${fmtDate(p.created_at)}</td></tr>`).join(''):'<tr><td class="empty" colspan="4">Nenhum produto cadastrado</td></tr>';}catch(e){}}
+  async function loadProductsDropdown(){if(!PROD_ID)return;try{const rows=await api('/api/products?action=listByProducer&id='+PROD_ID);const sel=document.getElementById('aff-product');sel.innerHTML='<option value="">Selecione um produto...</option>'+rows.map(p=>`<option value="${p.id}">${esc(p.name)} — R$${fmt(p.price)}</option>`).join('');}catch(e){}}
+  async function createAffiliate(){if(!PROD_ID)return toast('Configure sua conta primeiro!','err');const name=document.getElementById('aff-name').value.trim();const email=document.getElementById('aff-email').value.trim();const product_id=document.getElementById('aff-product').value;if(!name||!email||!product_id)return toast('Preencha todos os campos!','err');try{const data=await api('/api/affiliates?action=create',{method:'POST',body:JSON.stringify({producer_id:PROD_ID,name,email})});const link=`${location.origin}/r/${data.ref_code}/${product_id}`;const box=document.getElementById('aff-link-result');box.innerHTML=`<strong>🔗 Link gerado para ${esc(name)}:</strong>${link}<br/><br/><small style="color:var(--muted)">Código: <code>${data.ref_code}</code></small>`;box.classList.remove('hidden');toast('✅ Afiliado criado! Código: '+data.ref_code);document.getElementById('aff-name').value='';document.getElementById('aff-email').value='';loadAffiliates();}catch(e){toast('Erro: '+e.message,'err');}}
+  async function loadAffiliates(){if(!PROD_ID)return;try{const rows=await api('/api/affiliates?action=listByProducer&id='+PROD_ID);const tb=document.getElementById('affiliates-body');tb.innerHTML=rows.length?rows.map(a=>`<tr><td>${esc(a.name)}</td><td style="color:var(--muted)">${esc(a.email)}</td><td><code>${a.ref_code}</code></td><td>${a.total_sales||0}</td><td style="color:var(--green)">R$ ${fmt(a.total_commission||0)}</td></tr>`).join(''):'<tr><td class="empty" colspan="5">Nenhum afiliado cadastrado</td></tr>';}catch(e){}}
+  async function loadSales(){if(!PROD_ID)return;try{const rows=await api('/api/sales?action=listByProducer&id='+PROD_ID);document.getElementById('sales-body').innerHTML=rows.length?salesRows(rows):'<tr><td class="empty" colspan="6">Nenhuma venda registrada</td></tr>';}catch(e){}}
+  function salesRows(rows){return rows.map(s=>`<tr><td>${esc(s.product_name)}</td><td>${esc(s.affiliate_name)}</td><td>R$ ${fmt(s.amount)}</td><td style="color:var(--green)">R$ ${fmt(s.commission)}</td><td><span class="badge ${s.status}">${s.status==='approved'?'✅ Aprovada':'⏳ Pendente'}</span></td><td style="color:var(--muted)">${fmtDate(s.created_at)}</td></tr>`).join('');}
+  async function loadDashboard(){if(!PROD_ID){['stat-sales','stat-commission','stat-affiliates'].forEach(id=>document.getElementById(id).textContent='—');document.getElementById('dash-sales-body').innerHTML='<tr><td class="empty" colspan="6">Configure sua conta na aba ⚙️ Configuração</td></tr>';return;}try{const[sales,affiliates]=await Promise.all([api('/api/sales?action=listByProducer&id='+PROD_ID),api('/api/affiliates?action=listByProducer&id='+PROD_ID)]);const approved=sales.filter(s=>s.status==='approved');const totalC=approved.reduce((a,s)=>a+parseFloat(s.commission||0),0);document.getElementById('stat-sales').textContent=approved.length;document.getElementById('stat-commission').textContent='R$'+fmt(totalC);document.getElementById('stat-affiliates').textContent=affiliates.length;const last5=sales.slice(0,5);document.getElementById('dash-sales-body').innerHTML=last5.length?salesRows(last5):'<tr><td class="empty" colspan="6">Nenhuma venda ainda</td></tr>';}catch(e){document.getElementById('dash-sales-body').innerHTML='<tr><td class="empty" colspan="6">Erro ao conectar</td></tr>';}}
+  const fmt=v=>parseFloat(v||0).toFixed(2);
+  const esc=s=>String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const fmtDate=d=>d?new Date(d).toLocaleDateString('pt-BR'):'—';
+  loadDashboard();
+</script>
+</body>
+</html>
